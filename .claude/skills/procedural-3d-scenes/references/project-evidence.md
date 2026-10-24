@@ -11,7 +11,7 @@
 
 **Critical negative finding:** the repository has no general clay/white-model/no-surface-texture mode. The Clay skill is a newly distilled target workflow, not documentation of an existing feature. Every game's low-quality path still builds textured scenes.
 
-**Version warning:** `pelican-bike` and `cf-transport-ship` declare Three r186; `qq-speed` declares/locks Three r169. Do not assume addon/API parity when copying rendering code.
+**Version warning:** `pelican-bike` and `cf-transport-ship` declare Three r186; `qq-speed` declares/locks Three r169. Do not assume addon/API parity when copying rendering code. Both in-repo versions already use the migrated color-management/output-pass APIs (`qq-speed/src/main.js:2-6`, `:96`; `qq-speed/src/textures.js:18`), so the compatibility risk is addon path/parameter drift, not a pre/post `outputColorSpace` migration split.
 
 ## 1. Reusable delivery architecture
 
@@ -37,8 +37,8 @@ Dependencies:
 
 `pelican-bike/src/util.js` contains reusable patterns:
 
-- seeded RNG and frame-rate-independent damping (`:13-21`, `:26-47`);
-- cylinder-between-points, custom lofting, dynamic parallel-transport tubes (`:53-90`, `:93-179`);
+- seeded RNG (`:13-21`) and frame-rate-independent damping (`:10-11`);
+- cylinder-between-points (`:26-47`), custom lofting (`:53-91`), dynamic parallel-transport tubes (`:93-179`);
 - two-bone IK, vertex coloring, merge normalization (`:181-225`).
 
 The bird uses deformed/lofted geometry, morph targets, articulated joints, and IK (`pelican-bike/src/pelican.js:53-207`, `:254-417`, `:481-610`). The bicycle uses merged spokes, generated chain paths, instanced links, and animated wheels/gears (`pelican-bike/src/bicycle.js:51-121`, `:124-177`, `:331-486`). Fish geometry is lofted, merged, vertex-colored, and cached (`pelican-bike/src/fish.js:5-56`).
@@ -73,7 +73,7 @@ The toolkit contains tileable FBM and height-to-normal conversion (`cf-transport
 
 Canvas texture caching covers road, ground, facades, signs, boost pads, clouds, and tunnels (`qq-speed/src/textures.js:34-38`, `:40-610`). Props provide cached materials/geometries and several themed procedural environments (`qq-speed/src/props.js:7-25`, `:485-660`, `:804-938`, `:940-1074`, `:1131-1268`). Cars are extruded procedural profiles with shared geometry, clearcoat/glass, emissive trim, animated wheels, and generated labels (`qq-speed/src/carModel.js:15-75`, `:78-242`).
 
-**Distilled rule:** the project proves broad code-generated texture feasibility, not that every texture is necessary or cheap. Preserve semantic surface families, central caching, UV/scale review, and explicit disposal.
+**Distilled rule:** the source demonstrates broad code-generated texture coverage, not that every texture is necessary or cheap; this static audit did not benchmark generation. Preserve semantic surface families, central caching, UV/scale review, and explicit disposal.
 
 ## 4. Lighting, shaders, and postprocessing evidence
 
@@ -99,7 +99,7 @@ Pelican quality presets vary pixel ratio, shadow size, bloom, MSAA, and vegetati
 
 FPS quality changes DPR/MSAA and low removes bloom (`cf-transport-ship/src/render.js:53-80`); shadow sizes vary by tier (`cf-transport-ship/src/env.js:219-223`), and low disables four interior point lights (`cf-transport-ship/src/game.js:78-85`). `buildTextures(quality)` accepts but does not read its quality argument, so all tiers generate the same texture set (`cf-transport-ship/src/textures.js:699-753`).
 
-QQ low removes shadows and composer (`qq-speed/src/main.js:152-180`) and omits CPU-updated snowfall (`qq-speed/src/props.js:1246-1266`), but still builds textured maps/props/cars. Its `disposeLevel()` disposes geometries, not level materials/textures (`qq-speed/src/main.js:358-375`); item disposal only removes the group (`qq-speed/src/items.js:62-70`). This is a code-observed partial-cleanup risk, not a newly measured leak.
+QQ low removes shadows and composer (`qq-speed/src/main.js:152-180`) and omits CPU-updated snowfall (`qq-speed/src/props.js:1246-1266`), but still builds textured maps/props/cars. Its `disposeLevel()` disposes level geometries, not level materials/textures (`qq-speed/src/main.js:358-364`); item disposal only removes the group (`qq-speed/src/items.js:62-70`). Racer material cleanup is separate in `clearRacers()` and is not evidence of level-resource cleanup. This is a code-observed partial-cleanup risk, not a newly measured leak.
 
 **Distilled rule:** low quality is not clay. Every quality control must identify whether it applies live or only at construction. Geometry-only disposal is incomplete when unique materials/textures/targets exist.
 
@@ -113,10 +113,15 @@ No evidence was found for a global clay toggle, no-texture URL option, low-quali
 
 ## 7. Existing verification assets and traps
 
-Documented root commands:
+Documented root commands — **not safe baseline checks**. Do not run them without an explicit user request that covers their side effects:
 
 ```bash
+# DELETES ./dist recursively and may run npm install (build-site.mjs:15,20-23).
 node build-site.mjs
+
+# NOT A LOCAL CHECK: macOS-only Playwright import and absolute dist path;
+# opens the LIVE https://games.xdullboy.com site and writes /tmp
+# (tools/smoke.mjs:2,7,27,42). Do not run as a baseline check.
 node tools/smoke.mjs
 ```
 

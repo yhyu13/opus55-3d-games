@@ -26,7 +26,7 @@ Integrator: baseline + brief + frozen contract + thin shell
         ↓
 Integrator: assemble in dependency order + run checks
         ↓
-Verifier (fresh context, read-only) → integrator fixes → verifier rechecks
+Verifier (fresh context, read-only) → integrator fixes → second fresh verifier pass
 ```
 
 Texture work in Full may begin against frozen material keys before final geometry exists. Final UV/scale checks still happen after integration. Effects are last and optional.
@@ -75,7 +75,8 @@ DO NOT:
 - change shared contracts or dependencies;
 - edit outside the allow-list;
 - add a second render loop, renderer, controls, or global listener;
-- run a persistent dev server, deploy, commit, or push;
+- leave a dev server running, deploy, commit, or push; if assigned browser checks,
+  use an isolated port and stop every server you start afterwards;
 - claim visual success without a captured and inspected frame.
 
 SELF-CHECK:

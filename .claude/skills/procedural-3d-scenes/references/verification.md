@@ -23,7 +23,7 @@ map, normalMap, roughnessMap, metalnessMap, aoMap, bumpMap,
 displacementMap, emissiveMap, alphaMap, envMap
 ```
 
-Do not reject a variable merely because it contains the substring `map`; inspect material slots and executable behavior. Shadow render targets and renderer-internal textures are not surface art textures. No texture generator may execute “just once” in Clay.
+Do not reject a variable merely because it contains the substring `map`; inspect material slots and executable behavior. Shadow render targets and renderer-internal textures are not surface art textures. No texture generator may execute in Clay at all, even once.
 
 At runtime traverse visible scene materials and report every populated texture slot. Expected surface-texture count: **0**.
 

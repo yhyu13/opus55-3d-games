@@ -2,25 +2,26 @@
 name: procedural-3d-scenes
 description: Orchestrate browser-based procedural 3D scenes with a clay-first delivery path and a separate fully procedural lighting/material/texture path. Use for Three.js scene generation, white-model or monochrome blockouts, code-only visual assets, multi-agent scene implementation, or upgrading an approved clay scene without external art assets. Not for 2D-only games, imported-asset showcases, or deployment without an explicit request.
 metadata:
-  version: 1.0.0
+  version: 1.0.1
   category: 3d-rendering
   source-project: opus55-3d-games
+  source-of-truth: .claude/skills/procedural-3d-scenes
 ---
 
 # Procedural 3D Scenes
 
 Deliver a runnable scene before polishing it. Start with **clay/monochrome and no surface textures**, unless the user explicitly requests the complete procedural look. Treat the fully procedural version as a second, separately verified delivery—not as unfinished work silently added to the first.
 
-## Choose exactly one path
+## Choose one delivery path
 
 | Request | Path | Required child skill |
 |---|---|---|
 | 白膜/白模、单色、blockout、快速看构图、先看几何、不要贴图 | **Clay** | `three-clay-scenes` |
-| 全程序化、代码生成材质和贴图、无外部美术资源、完整光照 | **Full** | `three-procedural-scenes` |
+| 全程序化、代码生成材质和贴图、无外部美术资源、完整光照 | **Full** | `three-procedural-scenes` (includes its Clay diagnostic baseline) |
 | 先做白模，之后再做完整版本 | **Clay now; preserve upgrade seams** | Clay first, Full later |
 | User only asks for analysis or a plan | Analyze only; do not modify the scene | Read the relevant references |
 
-If speed and fidelity were not prioritized, default to Clay and state that choice. Do not ask a question when the request already selects a path. “No external assets” alone does not mean “no textures”: code-generated textures belong to Full.
+Unless the user explicitly asks for the complete procedural look, default to Clay and state that choice. Do not ask a question when the request already selects a path. “No external assets” alone does not mean “no textures”: code-generated textures belong to Full.
 
 ## Non-negotiable boundaries
 
@@ -46,7 +47,7 @@ If speed and fidelity were not prioritized, default to Clay and state that choic
 
 - Identify the existing run/build/test commands from scripts actually present.
 - Record the current Git state without changing it. Do not overwrite unrelated work.
-- Run the narrowest existing smoke/build command. If the baseline fails, report the pre-existing failure separately from new failures.
+- Run the narrowest existing smoke/build command only after inspecting its side effects. A documented check that deletes output, installs dependencies, or targets a deployed URL is not a baseline check; do not run it without an explicit user request covering those effects. If the baseline fails, report the pre-existing failure separately from new failures.
 - Write a short scene brief: subject, camera intent, interaction, target path, asset restriction, performance target if supplied, and explicit non-goals.
 - Define measurable acceptance: route/entry loads, expected objects exist, console/page errors are zero, screenshots are nonblank, mode-specific resource checks pass.
 
@@ -71,7 +72,7 @@ Use the default contract in `references/scene-contract.md`, adapting names to th
 
 Implement one representative subject, ground/reference scale, one camera, and the minimal lighting needed to read shape. Keep the update loop alive even if `update()` is initially empty. Build and open it before multiplying content.
 
-For Clay, stop adding rendering features once geometry, framing, interaction, and stability pass. For Full, keep the clay baseline available as a fallback and comparison image.
+For Clay, stop adding rendering features once geometry, framing, interaction, and stability pass. For Full, keep the clay baseline available as a fallback and comparison image; a diagnostic slice suffices when the user asked for Full directly and no separate Clay delivery was requested.
 
 **Exit:** first real screenshot exists and is visually inspected; there are no uncaught browser errors.
 
@@ -84,7 +85,7 @@ Recommended split:
 - **Clay:** environment geometry; hero/subject geometry; clay lighting and camera; read-only verifier.
 - **Full:** preserve approved geometry; procedural texture/material library; lighting/environment; optional effects; read-only verifier.
 
-Do not assign “make it beautiful” to everyone. Assign files, exported signatures, constraints, and proof. The integrator alone merges changes and resolves contract amendments. See `references/multi-agent-playbook.md` for copyable prompts and recovery rules.
+Do not assign “make it beautiful” to everyone. Assign files, exported signatures, constraints, and proof. The integrator alone composes shared files and resolves contract amendments; this does not imply a Git merge. See `references/multi-agent-playbook.md` for copyable prompts and recovery rules.
 
 **Exit:** every worker returns changed files, self-check evidence, known gaps, and no unauthorized contract changes.
 
@@ -153,5 +154,5 @@ Report:
 
 - `references/scene-contract.md` — frozen APIs, ownership, seed/quality/disposal contract.
 - `references/multi-agent-playbook.md` — role matrix, copyable worker prompts, integration and repair protocol.
-- `references/verification.md` — executable evidence checklist and failure triage.
+- `references/verification.md` — checklist to execute against the host project (not pre-executed) and failure triage.
 - `references/project-evidence.md` — source-project patterns and exact source anchors; provenance, not a universal template.

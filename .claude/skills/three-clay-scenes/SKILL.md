@@ -2,9 +2,10 @@
 name: three-clay-scenes
 description: Build or refactor fast Three.js white-model, clay, untextured monochrome 3D scenes with procedural geometry and simple readable lighting. Use for 白膜/白模, clay render, grayscale blockout, no-texture mode, first-pass 3D composition, or a fast baseline before procedural materials. For code-generated textures and full procedural look development, use three-procedural-scenes instead.
 metadata:
-  version: 1.0.0
+  version: 1.0.1
   category: 3d-rendering
   parent-skill: procedural-3d-scenes
+  source-of-truth: .claude/skills/three-clay-scenes
 ---
 
 # Three.js Clay Scenes
@@ -20,7 +21,7 @@ The first delivery is a **readable, interactive, untextured 3D scene**, not a ch
 - No texture synthesis “for later.” That belongs to `three-procedural-scenes`.
 - Use the existing project's Three.js version and renderer policy. Do not rewrite a working application around this skill.
 
-Renderer-internal shadow targets are allowed. They are not surface textures. A solid background, fog, vertex colors, and plain material colors are allowed.
+Renderer-internal shadow targets are allowed. They are not surface textures. A solid background, fog, monochrome vertex colors when genuinely supplied, and plain material colors are allowed.
 
 ## Read
 
@@ -115,6 +116,8 @@ Freeze exports and world axes first. A useful split is:
 - verifier: read-only checks and captures.
 
 Do not create a texture worker in Clay. Do not let each geometry worker invent a separate palette or lighting rig; the look contract is shared.
+
+Use internal subagents by default. Do not create visible Agent Manager sessions, worktrees, branches, commits, dependency installs, or deployments unless the user explicitly requests those actions.
 
 ## Upgrade seam for the later Full version
 

@@ -78,6 +78,7 @@ For every created resource, identify one owner:
 | DOM/window listeners | installer | remove with the same function reference |
 | Composer/passes | integrator/effects owner | dispose owned passes/targets |
 | RequestAnimationFrame | integrator | cancel centrally |
+| Global test hook (`window.__sceneTest`) | integrator | delete on teardown/remount if installed |
 | Workers/timers/audio nodes | creator | terminate/clear/disconnect as applicable |
 
 Never dispose shared renderer, shared camera, or another module's root. `dispose()` must tolerate being called twice.
@@ -133,7 +134,7 @@ window.__sceneTest = {
 };
 ```
 
-The test hook calls production behavior; it must not maintain a parallel fake scene. Semantic counts and seeds are asserted from actual scene data. Renderer info is supporting evidence, not a complete leak proof.
+The test hook calls production behavior; it must not maintain a parallel fake scene. Semantic counts and seeds are asserted from actual scene data. Renderer info is supporting evidence, not a complete leak proof. If installed, delete `window.__sceneTest` during teardown/remount so stale globals cannot survive into a new scene instance.
 
 ## 7. Change-amendment protocol
 

@@ -2,9 +2,10 @@
 name: three-procedural-scenes
 description: Build or upgrade Three.js scenes whose geometry, lighting environment, materials, and textures are all generated in code, with no external art assets. Use for full procedural look development, Canvas/DataTexture or shader textures, procedural PMREM environments, seeded material generation, and converting an approved clay scene into a complete textured scene. For fast untextured white-model or monochrome work, use three-clay-scenes first.
 metadata:
-  version: 1.0.0
+  version: 1.0.1
   category: 3d-rendering
   parent-skill: procedural-3d-scenes
+  source-of-truth: .claude/skills/three-procedural-scenes
 ---
 
 # Three.js Fully Procedural Scenes
@@ -137,6 +138,8 @@ Recommended ownership after contract freeze:
 - **Verifier:** read-only browser, visual, determinism, cache, and resource-cycle checks.
 
 Texture and lighting workers may develop in parallel against frozen semantic keys, but final look approval happens only after integration. No worker may add an HDRI, create a second renderer/loop, or silently change global exposure to make its local test look better.
+
+Use internal subagents by default. Do not create visible Agent Manager sessions, worktrees, branches, commits, dependency installs, or deployments unless the user explicitly requests those actions.
 
 ## Performance degradation order
 
